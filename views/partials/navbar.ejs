@@ -143,7 +143,7 @@
 
 <nav class="sidebar-modern" id="mySidebar">
     <div class="sidebar-header">
-        <a href="/" class="sidebar-logo">
+        <a href="<%= (loggedIn && role === 'admin') ? '/' : '/sukien' %>" class="sidebar-logo">
             ⭐ <span>iEvents</span>
         </a>
         <button id="toggleSidebarBtn" onclick="handleSidebarToggle()">
@@ -152,20 +152,42 @@
     </div>
 
     <div class="sidebar-nav">
-
         <% if (loggedIn && role==='admin' ) { %>
-            <a href="/" class="sidebar-link"><i class="bi bi-house-door"></i> <span>Bảng điều khiển</span></a>
-            <a href="/sukien" class="sidebar-link"><i class="bi bi-calendar4-week"></i> <span>Sự kiện</span></a>
-            <a href="/admin/taikhoan" class="sidebar-link"><i class="bi bi-person-gear"></i> <span>Tài khoản</span></a>
-            <a href="/admin/danhsachdangky" class="sidebar-link"><i class="bi bi-file-earmark-text"></i> <span>Đăng
-                    ký</span></a>
+            <a href="/" class="sidebar-link">
+                <i class="bi bi-house-door"></i> <span>Bảng điều khiển</span>
+            </a>
+            <a href="/sukien" class="sidebar-link">
+                <i class="bi bi-calendar4-week"></i> <span>Quản lý Sự kiện</span>
+            </a>
+
+            <a href="/tintuc" class="sidebar-link">
+                <i class="bi bi-journal-richtext"></i> <span>Quản lý Tin tức</span>
+            </a>
+
+            <a href="/admin/taikhoan" class="sidebar-link">
+                <i class="bi bi-person-gear"></i> <span>Tài khoản</span>
+            </a>
+            <a href="/admin/danhsachdangky" class="sidebar-link">
+                <i class="bi bi-file-earmark-text"></i> <span>Danh sách Đăng ký</span>
+            </a>
 
             <% } else { %>
-                <a href="/sukien" class="sidebar-link"><i class="bi bi-calendar4-week"></i> <span>Sự kiện</span></a>
-                <a href="/sukien_dadangky" class="sidebar-link"><i class="bi bi-card-checklist"></i> <span>Sự kiện của
-                        tôi</span></a>
+                <a href="/sukien" class="sidebar-link">
+                    <i class="bi bi-calendar4-week"></i> <span>Sự kiện</span>
+                </a>
+
+                <a href="/tintuc" class="sidebar-link">
+                    <i class="bi bi-newspaper"></i> <span>Tin tức & Hoạt động</span>
+                </a>
+
+                <a href="/sukien_dadangky" class="sidebar-link">
+                    <i class="bi bi-card-checklist"></i> <span>Sự kiện của tôi</span>
+                </a>
                 <% } %>
 
+                    <a href="/bando" class="sidebar-link">
+                        <i class="bi bi-map"></i> <span>Bản đồ sự kiện</span>
+                    </a>
     </div>
     <div class="sidebar-footer">
         <% if (loggedIn) { %>

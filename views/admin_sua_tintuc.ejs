@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa bài viết - iEvent AGU</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            border-radius: 15px;
+        }
+
+        #editor {
+            background: white;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        .ql-toolbar {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <%- include('partials/navbar') %>
+
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-5">
+                            <div class="d-flex align-items-center mb-4">
+                                <a href="/tintuc" class="btn btn-light rounded-circle me-3"><i
+                                        class="bi bi-arrow-left"></i></a>
+                                <h2 class="fw-bold mb-0">Chỉnh sửa bài viết</h2>
+                            </div>
+
+                            <form action="/admin/tintuc/sua/<%= tin._id %>" method="POST" id="editForm">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-bold">Tiêu đề bài viết</label>
+                                        <input type="text" name="tieuDe" class="form-control p-3"
+                                            value="<%= tin.tieuDe %>" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Danh mục</label>
+                                        <select name="danhMuc" class="form-select p-3">
+                                            <option value="Thông báo" <%=tin.danhMuc==='Thông báo' ? 'selected' : '' %>
+                                                >Thông báo</option>
+                                            <option value="Hoạt động" <%=tin.danhMuc==='Hoạt động' ? 'selected' : '' %>
+                                                >Hoạt động</option>
+                                            <option value="Kỹ năng" <%=tin.danhMuc==='Kỹ năng' ? 'selected' : '' %>>Kỹ
+                                                năng</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Link hình ảnh đại diện</label>
+                                        <input type="text" name="hinhAnh" class="form-control"
+                                            value="<%= tin.hinhAnh %>">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Tóm tắt ngắn</label>
+                                        <textarea name="tomTat" class="form-control"
+                                            rows="2"><%= tin.tomTat %></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Nội dung chi tiết</label>
+                                        <div id="editor" style="height: 300px;"><%- tin.noiDung %></div>
+                                        <input type="hidden" name="noiDung" id="noiDungInput">
+                                    </div>
+                                    <div class="col-12 text-end mt-4">
+                                        <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold">Lưu
+                                            thay đổi</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+        <script>
+            var quill = new Quill('#editor', { theme: 'snow' });
+
+            // Trước khi submit, lấy HTML từ Quill bỏ vào input ẩn
+            document.getElementById('editForm').onsubmit = function () {
+                document.getElementById('noiDungInput').value = quill.root.innerHTML;
+            };
+        </script>
+</body>
+
+</html>

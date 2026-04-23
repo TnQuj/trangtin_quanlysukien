@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ sự kiện AGU</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 15px;
+            z-index: 1;
+        }
+
+        .event-popup-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="fw-bold mb-3"><i class="bi bi-map me-2"></i>Bản đồ vị trí sự kiện</h3>
+                    <div id="map" class="shadow-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var map = L.map('map').setView([10.3716, 105.4323], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            var rawData = '<%- JSON.stringify(locations || []) %>';
+            var locations = JSON.parse(rawData);
+
+            var focusId = "<%= typeof focusId !== 'undefined' ? focusId : '' %>";
+
+            locations.forEach(function (loc) {
+                if (loc.ViDo && loc.KinhDo) {
+                    var marker = L.marker([loc.ViDo, loc.KinhDo]).addTo(map);
+
+                    var popupContent = `<b>${loc.TenDiaDiem}</b><br>${loc.DiaChi || ''}`;
+                    marker.bindPopup(popupContent);
+
+                    // Lưu ý so sánh String với String
+                    if (String(loc._id) === focusId) {
+                        map.flyTo([loc.ViDo, loc.KinhDo], 18);
+                        marker.openPopup();
+                    }
+                }
+            });
+        </script>
+
+        <%- include('partials/footer') %>
+</body>
+
+</html>

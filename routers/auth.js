@@ -1,26 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-
-// Nhúng model Tài khoản (Đảm bảo đường dẫn ra ngoài 1 thư mục '../' là đúng)
 const TaiKhoan = require('../models/TaiKhoan');
 
 // ==========================================
 // 1. GIAO DIỆN: HIỂN THỊ TRANG ĐĂNG NHẬP
 // ==========================================
 router.get('/dangnhap', (req, res) => {
-    // Nếu người dùng đã đăng nhập rồi mà cố tình gõ url /dangnhap -> Đẩy về trang chủ luôn
     if (req.session.loggedIn) {
         return res.redirect('/');
     }
 
-    // Hiển thị giao diện dangnhap.ejs kèm theo các thông báo lỗi (nếu có)
     res.render('dangnhap', {
         error: req.session.error,
         success: req.session.success
     });
 
-    // Xóa thông báo sau khi đã hiển thị để không bị kẹt lại khi F5
     delete req.session.error;
     delete req.session.success;
 });
@@ -33,22 +28,18 @@ router.post('/dangnhap', async (req, res) => {
     try {
         const { tenDangNhap, matKhau } = req.body;
 
-        // Tìm tài khoản trong cơ sở dữ liệu
         const user = await TaiKhoan.findOne({ tenDangNhap });
 
-        // Nếu không tìm thấy user
         if (!user) {
             req.session.error = 'Tên đăng nhập hoặc mật khẩu chưa chính xác';
             return res.redirect('/dangnhap');
         }
 
-        // Kiểm tra xem tài khoản có bị Admin khóa không
         if (user.khoa === true) {
             req.session.error = 'Tài khoản của bạn đã bị khoá. Vui lòng liên hệ Admin!';
             return res.redirect('/dangnhap');
         }
 
-        // Kiểm tra mật khẩu (so sánh mật khẩu nhập vào với mật khẩu đã mã hóa trong DB)
         if (bcrypt.compareSync(matKhau, user.matKhau)) {
 
             // ✅ ĐĂNG NHẬP THÀNH CÔNG -> Lưu thông tin vào phiên (Session)
@@ -59,13 +50,13 @@ router.post('/dangnhap', async (req, res) => {
 
             // --- ĐIỀU HƯỚNG THÔNG MINH THEO PHÂN QUYỀN ---
             if (user.role === 'admin') {
-                return res.redirect('/'); // Admin bay về Trang chủ (Dashboard)
+                return res.redirect('/');
             } else {
-                return res.redirect('/sukien'); // User thường về trang Danh sách sự kiện
+                return res.redirect('/sukien');
             }
         }
 
-        // Nếu sai mật khẩu
+
         req.session.error = 'Tên đăng nhập hoặc mật khẩu chưa chính xác';
         res.redirect('/dangnhap');
 
@@ -85,7 +76,6 @@ router.get('/dangxuat', (req, res) => {
         if (err) {
             console.error("Lỗi khi đăng xuất: ", err);
         }
-        // Đá về trang đăng nhập
         res.redirect('/dangnhap');
     });
 });
@@ -93,12 +83,44 @@ router.get('/dangxuat', (req, res) => {
 // ==========================================
 // 4. GIAO DIỆN: HIỂN THỊ TRANG ĐĂNG KÝ
 // ==========================================
+// Hiển thị trang đăng ký khi người dùng gõ /dangky trên thanh địa chỉ
 router.get('/dangky', (req, res) => {
     if (req.session.loggedIn) {
         return res.redirect('/');
     }
-    res.render('dangky', { error: req.session.error });
+    res.render('dangky', { error: req.session.error || null });
+
     delete req.session.error;
+});
+
+router.post('/dangky', async (req, res) => {
+    try {
+        console.log("Dữ liệu nhận được:", req.body); // Bước 1: Kiểm tra dữ liệu vào
+
+        const { hoVaTen, email, tenDangNhap, matKhau, xacNhanMatKhau } = req.body;
+
+        if (matKhau !== xacNhanMatKhau) {
+            req.session.error = 'Mật khẩu không khớp!';
+            return res.redirect('/dangky');
+        }
+
+        const userMoi = new TaiKhoan({
+            hoVaTen,
+            email,
+            tenDangNhap,
+            matKhau: bcrypt.hashSync(matKhau, 10),
+            role: 'user'
+        });
+
+        await userMoi.save(); // Bước 2: Lưu xuống DB
+        req.session.success = 'Đăng ký thành công!';
+        res.redirect('/dangnhap');
+
+    } catch (err) {
+        console.error("LỖI ĐĂNG KÝ:", err); // Bước 3: Xem lỗi cụ thể ở Terminal
+        req.session.error = 'Lỗi: ' + err.message;
+        res.redirect('/dangky');
+    }
 });
 
 // ==========================================
@@ -108,20 +130,17 @@ router.post('/dangky', async (req, res) => {
     try {
         const { hoVaTen, tenDangNhap, matKhau, xacNhanMatKhau } = req.body;
 
-        // 1. Kiểm tra mật khẩu có khớp không
         if (matKhau !== xacNhanMatKhau) {
             req.session.error = 'Mật khẩu xác nhận không khớp!';
             return res.redirect('/dangky');
         }
 
-        // 2. Kiểm tra tài khoản đã tồn tại chưa
         const userTonTai = await TaiKhoan.findOne({ tenDangNhap });
         if (userTonTai) {
             req.session.error = 'Tên đăng nhập này đã có người sử dụng!';
             return res.redirect('/dangky');
         }
 
-        // 3. Mã hóa mật khẩu và Lưu vào Database
         const salt = bcrypt.genSaltSync(10);
         const matKhauMaHoa = bcrypt.hashSync(matKhau, salt);
 
@@ -133,7 +152,6 @@ router.post('/dangky', async (req, res) => {
             khoa: false
         }).save();
 
-        // 4. Báo thành công và đẩy về trang đăng nhập
         req.session.success = 'Đăng ký tài khoản thành công! Vui lòng đăng nhập.';
         res.redirect('/dangnhap');
 

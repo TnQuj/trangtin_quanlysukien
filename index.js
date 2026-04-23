@@ -366,6 +366,77 @@ app.get('/', checkLogin, async (req, res) => {
     }
 });
 
+const DiaDiem = require('./models/DiaDiem');
+
+app.get('/bando', async (req, res) => {
+    try {
+        // Lấy tất cả địa điểm từ collection diadiem
+        const data = await DiaDiem.find({});
+
+        res.render('bando', {
+            locations: data,
+            // ... các biến khác như loggedIn, role ...
+        });
+    } catch (err) {
+        console.error("Lỗi lấy dữ liệu địa điểm:", err);
+        res.status(500).send("Lỗi Server");
+    }
+});
+
+const TinTuc = require('./models/TinTuc');
+
+
+app.get('/tintuc', async (req, res) => {
+    try {
+        const dsTinTuc = await TinTuc.find().sort({ ngayDang: -1 });
+
+        // Vì file nằm ở views/tintuc.ejs, ta chỉ cần gọi 'tintuc'
+        res.render('tintuc', {
+            dsTinTuc: dsTinTuc,
+            loggedIn: req.session.loggedIn || false,
+            role: req.session.role || 'user',
+            currentPage: 'tintuc' // Biến này để sidebar nhận biết trang hiện tại
+        });
+    } catch (err) {
+        console.error("Lỗi khi tải trang tin tức:", err);
+        res.redirect('/');
+    }
+});
+
+// 1. Route để hiển thị trang sửa bài viết
+app.get('/admin/tintuc/sua/:id', async (req, res) => {
+    try {
+        // Kiểm tra quyền admin
+        if (req.session.role !== 'admin') return res.redirect('/tintuc');
+
+        const tin = await TinTuc.findById(req.params.id);
+        if (!tin) return res.redirect('/tintuc');
+
+        res.render('admin_sua_tintuc', {
+            tin,
+            loggedIn: req.session.loggedIn,
+            role: req.session.role
+        });
+    } catch (err) {
+        res.redirect('/tintuc');
+    }
+});
+
+// 2. Route để xử lý cập nhật dữ liệu vào MongoDB
+app.post('/admin/tintuc/sua/:id', async (req, res) => {
+    try {
+        const { tieuDe, danhMuc, hinhAnh, tomTat, noiDung } = req.body;
+
+        await TinTuc.findByIdAndUpdate(req.params.id, {
+            tieuDe, danhMuc, hinhAnh, tomTat, noiDung
+        });
+
+        res.redirect('/tintuc'); // Sửa xong quay về danh sách
+    } catch (err) {
+        console.error(err);
+        res.send("Lỗi khi cập nhật bài viết");
+    }
+});
 // ====================== KHỞI ĐỘNG SERVER ======================
 app.listen(3000, () => {
     console.log('Server chạy tại http://localhost:3000');

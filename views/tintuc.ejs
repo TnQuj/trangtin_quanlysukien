@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin tức & Hoạt động - iEvent AGU</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .news-card {
+            border: none;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .news-img-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .news-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .news-card:hover .news-img {
+            transform: scale(1.1);
+        }
+
+        .admin-tools {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .news-card:hover .admin-tools {
+            opacity: 1;
+        }
+
+        .badge-category {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.8);
+            color: #4361ee;
+            font-weight: bold;
+        }
+
+        .text-limit {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <%- include('partials/navbar') %>
+
+        <div class="container py-5">
+            <div class="row mb-5 align-items-end">
+                <div class="col-md-8">
+                    <h6 class="text-primary fw-bold text-uppercase ls-1">News & Updates</h6>
+                    <h1 class="fw-bold text-dark">Bản Tin Sinh Viên</h1>
+                    <p class="text-muted fs-5">Nơi cập nhật những hoạt động sôi nổi và thông báo mới nhất từ iEvent AGU.
+                    </p>
+                </div>
+                <% if (loggedIn && role==='admin' ) { %>
+                    <div class="col-md-4 text-md-end">
+                        <a href="/admin/tintuc/them" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i>Viết Bài Mới
+                        </a>
+                    </div>
+                    <% } %>
+            </div>
+
+            <div class="row g-4">
+                <% if (dsTinTuc && dsTinTuc.length> 0) { %>
+                    <% dsTinTuc.forEach(tin=> { %>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100 news-card shadow-sm">
+
+                                <div class="news-img-wrapper">
+                                    <% if (loggedIn && role==='admin' ) { %>
+                                        <div class="admin-tools">
+                                            <a href="/admin/tintuc/sua/<%= tin._id %>"
+                                                class="btn btn-light btn-sm rounded-circle shadow-sm text-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form action="/admin/tintuc/xoa/<%= tin._id %>" method="POST"
+                                                class="d-inline">
+                                                <button type="submit"
+                                                    class="btn btn-light btn-sm rounded-circle shadow-sm text-danger"
+                                                    onclick="return confirm('Xóa bài viết này?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <% } %>
+
+                                            <img src="<%= tin.hinhAnh || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800' %>"
+                                                class="news-img" alt="Thumbnail">
+                                            <span class="badge badge-category rounded-pill px-3 shadow-sm">
+                                                <%= tin.danhMuc %>
+                                            </span>
+                                </div>
+
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-2 text-muted small">
+                                        <i class="bi bi-calendar3 me-2"></i>
+                                        <%= new Date(tin.ngayDang).toLocaleDateString('vi-VN') %>
+                                            <i class="bi bi-eye ms-auto me-1"></i>
+                                            <%= tin.luotXem || 0 %>
+                                    </div>
+                                    <h5 class="card-title fw-bold mb-3">
+                                        <a href="/tintuc/<%= tin.slug %>" class="text-dark text-decoration-none">
+                                            <%= tin.tieuDe %>
+                                        </a>
+                                    </h5>
+                                    <p class="card-text text-muted small text-limit">
+                                        <%= tin.tomTat %>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-white border-0 p-4 pt-0">
+                                    <a href="/tintuc/<%= tin.slug %>"
+                                        class="fw-bold text-primary text-decoration-none">Đọc tiếp <i
+                                            class="bi bi-arrow-right ms-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <div class="col-12 text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
+                                        style="width: 150px; opacity: 0.5;">
+                                    <p class="mt-4 text-muted fs-5">Chưa có bài viết nào được đăng tải.</p>
+                                </div>
+                                <% } %>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
