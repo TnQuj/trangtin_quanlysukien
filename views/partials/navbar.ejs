@@ -1,0 +1,215 @@
+<style>
+    /* 1. Cấu hình Sidebar chính */
+    :root {
+        --sidebar-width: 280px;
+        --sidebar-collapsed-width: 85px;
+        --primary-color: #007BFF;
+    }
+
+    .sidebar-modern {
+        width: var(--sidebar-width);
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: #ffffff;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 1040;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 2. Trạng thái thu gọn (Collapsed) */
+    .sidebar-modern.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+    /* Ẩn chữ và các thành phần thừa khi thu gọn */
+    .sidebar-modern.collapsed .sidebar-logo span,
+    .sidebar-modern.collapsed .sidebar-link span,
+    .sidebar-modern.collapsed .user-info,
+    .sidebar-modern.collapsed .admin-label {
+        display: none;
+    }
+
+    .sidebar-modern.collapsed .sidebar-link {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .sidebar-modern.collapsed .sidebar-link i {
+        margin-right: 0;
+        font-size: 1.5rem;
+    }
+
+    /* 3. Header Sidebar & Nút Đóng/Mở */
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f4f8;
+    }
+
+    .sidebar-logo {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #toggleSidebarBtn {
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #6c757d;
+        border: none;
+        background: none;
+        padding: 5px;
+        transition: transform 0.3s;
+    }
+
+    /* 4. Nội dung Menu */
+    .sidebar-nav {
+        flex-grow: 1;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        overflow-x: hidden;
+    }
+
+    .sidebar-link {
+        color: #495057;
+        text-decoration: none;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        border-radius: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-link:hover {
+        background-color: rgba(0, 123, 255, 0.08);
+        color: var(--primary-color);
+    }
+
+    .sidebar-link i {
+        font-size: 1.25rem;
+        margin-right: 12px;
+        color: var(--primary-color);
+        min-width: 25px;
+        text-align: center;
+    }
+
+    /* 5. Footer và Tài khoản */
+    .sidebar-footer {
+        padding: 15px;
+        border-top: 1px solid #f0f4f8;
+        background-color: #fafbfc;
+    }
+
+    /* 6. Xử lý đẩy nội dung trang chủ */
+    @media (min-width: 992px) {
+        body {
+            transition: padding-left 0.3s ease;
+            padding-left: var(--sidebar-width) !important;
+        }
+
+        body.content-collapsed {
+            padding-left: var(--sidebar-collapsed-width) !important;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .sidebar-modern {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-modern.show {
+            transform: translateX(0);
+        }
+
+        body {
+            padding-left: 0 !important;
+        }
+    }
+</style>
+
+<nav class="sidebar-modern" id="mySidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-logo">
+            ⭐ <span>iEvents</span>
+        </a>
+        <button id="toggleSidebarBtn" onclick="handleSidebarToggle()">
+            <i class="bi bi-chevron-left" id="toggleIcon"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-nav">
+
+        <% if (loggedIn && role==='admin' ) { %>
+            <a href="/" class="sidebar-link"><i class="bi bi-house-door"></i> <span>Bảng điều khiển</span></a>
+            <a href="/sukien" class="sidebar-link"><i class="bi bi-calendar4-week"></i> <span>Sự kiện</span></a>
+            <a href="/admin/taikhoan" class="sidebar-link"><i class="bi bi-person-gear"></i> <span>Tài khoản</span></a>
+            <a href="/admin/danhsachdangky" class="sidebar-link"><i class="bi bi-file-earmark-text"></i> <span>Đăng
+                    ký</span></a>
+
+            <% } else { %>
+                <a href="/sukien" class="sidebar-link"><i class="bi bi-calendar4-week"></i> <span>Sự kiện</span></a>
+                <a href="/sukien_dadangky" class="sidebar-link"><i class="bi bi-card-checklist"></i> <span>Sự kiện của
+                        tôi</span></a>
+                <% } %>
+
+    </div>
+    <div class="sidebar-footer">
+        <% if (loggedIn) { %>
+            <div class="user-info text-center mb-3">
+                <p class="small fw-bold mb-0 text-dark">
+                    <%= hoVaTen %>
+                </p>
+                <span class="badge bg-primary-subtle text-primary border-0" style="font-size: 0.7rem;">
+                    <%= role.toUpperCase() %>
+                </span>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                <a href="/dangxuat" class="btn btn-sm btn-outline-danger border-0 w-100"><i
+                        class="bi bi-box-arrow-left"></i> <span class="user-info">Thoát</span></a>
+            </div>
+            <% } %>
+    </div>
+</nav>
+
+<div class="d-lg-none p-3 bg-white border-bottom sticky-top d-flex justify-content-between align-items-center">
+    <span class="fw-bold text-primary">⭐ iEvents</span>
+    <button class="btn btn-primary btn-sm" onclick="toggleMobileSidebar()"><i class="bi bi-list"></i></button>
+</div>
+
+<script>
+    // Xử lý đóng/mở cho Máy tính (Thu nhỏ)
+    function handleSidebarToggle() {
+        const sidebar = document.getElementById('mySidebar');
+        const body = document.body;
+        const icon = document.getElementById('toggleIcon');
+
+        sidebar.classList.toggle('collapsed');
+        body.classList.toggle('content-collapsed');
+
+        // Đổi chiều mũi tên icon
+        if (sidebar.classList.contains('collapsed')) {
+            icon.classList.replace('bi-chevron-left', 'bi-chevron-right');
+        } else {
+            icon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+        }
+    }
+
+    // Xử lý đóng/mở cho Điện thoại (Hiện/Ẩn)
+    function toggleMobileSidebar() {
+        document.getElementById('mySidebar').classList.toggle('show');
+    }
+</script>

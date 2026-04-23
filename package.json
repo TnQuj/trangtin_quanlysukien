@@ -1,0 +1,22 @@
+{
+	"name": "trangtin",
+	"version": "2.0.0",
+	"description": "Trang tin điện tử NodeJS + MongoDB Atlas",
+	"license": "ISC",
+	"author": "FIT - AGU",
+	"type": "commonjs",
+	"main": "index.js",
+	"scripts": {
+		"test": "nodemon index.js"
+	},
+	"dependencies": {
+		"axios": "^1.15.2",
+		"bcryptjs": "^3.0.3",
+		"cheerio": "^1.2.0",
+		"ejs": "^4.0.1",
+		"express": "^5.2.1",
+		"express-session": "^1.19.0",
+		"mongoose": "^9.2.4",
+		"nodemon": "^3.1.14"
+	}
+}

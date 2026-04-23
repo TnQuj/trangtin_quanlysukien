@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sự kiện - iEvent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .event-card {
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .event-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .badge-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-upcoming {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-expired {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <%- include('partials/navbar') %>
+
+        <div class="flex-grow-1 p-4">
+            <div class="container-fluid max-w-7xl">
+                <h3 class="fw-bold mb-4">Sự kiện dành cho bạn 🎉</h3>
+
+                <% if (success) { %>
+                    <div id="autoAlert" class="alert alert-success py-2">
+                        <%= success %>
+                    </div>
+                    <% } %>
+                        <% if (error) { %>
+                            <div id="autoAlert" class="alert alert-danger py-2">
+                                <%= error %>
+                            </div>
+                            <% } %>
+
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <form action="/sukien" method="GET" class="mb-4 d-flex">
+                                            <div class="input-group shadow-sm">
+                                                <input type="text" name="keyword" class="form-control border-0 p-3"
+                                                    placeholder="Tìm kiếm sự kiện bạn quan tâm..."
+                                                    value="<%= keyword || '' %>">
+                                                <button class="btn btn-primary px-4"><i
+                                                        class="bi bi-search"></i></button>
+                                            </div>
+                                        </form>
+
+                                        <% if (events.length===0) { %>
+                                            <div class="text-center py-5 text-muted bg-white rounded-3 shadow-sm">Không
+                                                tìm thấy sự kiện nào.</div>
+                                            <% } else { %>
+                                                <div class="row">
+                                                    <% events.forEach(function(e) { let today=new Date();
+                                                        today.setHours(0, 0, 0, 0); let eventDate=new Date(e.ngay);
+                                                        eventDate.setHours(0, 0, 0, 0); let isExpired=eventDate < today;
+                                                        %>
+                                                        <div class="col-md-6">
+                                                            <div class="event-card shadow-sm position-relative">
+                                                                <% if (isExpired) { %>
+                                                                    <span class="badge-status badge-expired">Đã kết
+                                                                        thúc</span>
+                                                                    <% } else { %>
+                                                                        <span class="badge-status badge-upcoming">Sắp
+                                                                            diễn ra</span>
+                                                                        <% } %>
+
+                                                                            <img src="<%- (e.hinhAnh && e.hinhAnh.trim() !== '') ? e.hinhAnh.trim() : 'https://ui-avatars.com/api/?name=AGU&background=0056b3&color=fff&size=400' %>"
+                                                                                class="event-thumbnail"
+                                                                                onerror="this.src='https://ui-avatars.com/api/?name=Lỗi+Ảnh&background=ff4d4d&color=fff&size=400';">
+
+                                                                            <div class="p-4">
+                                                                                <h5 class="fw-bold mb-3"><a
+                                                                                        href="/sukien/<%= e._id %>"
+                                                                                        class="text-dark text-decoration-none hover-primary">
+                                                                                        <%= e.tenSuKien %>
+                                                                                    </a></h5>
+
+                                                                                <p class="text-muted small mb-2"><i
+                                                                                        class="bi bi-clock me-2 text-primary"></i>
+                                                                                    <%= new
+                                                                                        Date(e.ngay).toLocaleDateString('vi-VN')
+                                                                                        %>
+                                                                                </p>
+                                                                                <p class="text-muted small mb-2"><i
+                                                                                        class="bi bi-geo-alt-fill me-2 text-danger"></i>
+                                                                                    <%= e.diaDiem %>
+                                                                                </p>
+                                                                                <p class="text-muted small mb-4"><i
+                                                                                        class="bi bi-people-fill me-2 text-info"></i>
+                                                                                    Đã đăng ký: <strong>
+                                                                                        <%= e.soLuongDaDangKy || 0 %> /
+                                                                                            <%= e.soLuongToiDa || 100 %>
+                                                                                    </strong></p>
+
+                                                                                <% if (!isExpired && loggedIn) { %>
+                                                                                    <form
+                                                                                        action="/dangky_sukien/<%= e._id %>"
+                                                                                        method="POST" class="d-grid">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-outline-primary fw-bold">Đăng
+                                                                                            ký tham gia</button>
+                                                                                    </form>
+                                                                                    <% } %>
+                                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                        <% }) %>
+                                                </div>
+                                                <% } %>
+                                    </div>
+
+                                    <div class="col-lg-4 mt-4 mt-lg-0">
+                                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                                            <div class="card-body p-4">
+                                                <h6 class="fw-bold text-primary mb-4 pb-2 border-bottom"><i
+                                                        class="bi bi-shield-check me-2"></i>Quy định tham gia</h6>
+                                                <div class="d-flex mb-3">
+                                                    <div class="flex-shrink-0 text-warning"><i
+                                                            class="bi bi-clock-history fs-4"></i></div>
+                                                    <div class="ms-3">
+                                                        <h6 class="fw-bold mb-1">Check-in</h6>
+                                                        <p class="text-muted small mb-0">Có mặt trước 15-30 phút.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex mb-3">
+                                                    <div class="flex-shrink-0 text-success"><i
+                                                            class="bi bi-person-badge fs-4"></i></div>
+                                                    <div class="ms-3">
+                                                        <h6 class="fw-bold mb-1">Thẻ sinh viên</h6>
+                                                        <p class="text-muted small mb-0">Bắt buộc mang theo thẻ SV.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex mb-3">
+                                                    <div class="flex-shrink-0 text-danger"><i
+                                                            class="bi bi-x-octagon fs-4"></i></div>
+                                                    <div class="ms-3">
+                                                        <h6 class="fw-bold mb-1">Hủy đăng ký</h6>
+                                                        <p class="text-muted small mb-0">Hủy trước 30 phút nếu không đi.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+            <script>
+                setTimeout(() => { const alerts = document.querySelectorAll('#autoAlert'); alerts.forEach(a => { a.style.opacity = '0'; setTimeout(() => a.remove(), 500); }); }, 3000);
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chi tiết sự kiện</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <%- include('partials/navbar') %>
+
+        <div class="flex-grow-1 container mt-4">
+            <a href="/sukien" class="btn btn-secondary mb-3">← Quay lại danh sách</a>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-primary mb-3">
+                        <%= event.tenSuKien %>
+                    </h2>
+
+                    <p><strong>📅 Ngày tổ chức:</strong>
+                        <%= new Date(event.ngay).toLocaleDateString('vi-VN') %>
+                    </p>
+                    <p><strong>📍 Địa điểm:</strong>
+                        <%= event.diaDiem %>
+                    </p>
+
+                    <!-- SỐ LƯỢNG ĐĂNG KÝ -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <strong>Số lượng đăng ký:</strong>
+                        <span class="badge bg-primary fs-5 px-3 py-2">
+                            <%= soLuongDaDangKy %> / <%= event.soLuongToiDa || 100 %>
+                        </span>
+                    </div>
+
+                    <h5 class="mb-2">📝 Mô tả sự kiện</h5>
+                    <!-- MÔ TẢ ĐẦY ĐỦ - KHÔNG CÒN KHOẢNG TRẮNG THỪA -->
+                    <p class="lead" style="white-space: pre-line; line-height: 1.6;">
+                        <%= (event.moTa || 'Không có mô tả chi tiết' ).trim() %>
+                    </p>
+
+                    <!-- Nút đăng ký -->
+                    <div class="mt-4">
+                        <% if (loggedIn) { %>
+                            <form action="/dangky_sukien/<%= event._id %>" method="POST">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    📝 Đăng ký tham gia sự kiện
+                                </button>
+                            </form>
+                            <% } else { %>
+                                <a href="/dangnhap" class="btn btn-primary btn-lg">
+                                    Đăng nhập để đăng ký
+                                </a>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+
+</body>
+
+</html>

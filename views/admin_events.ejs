@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sự kiện - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <%- include('partials/navbar') %>
+
+        <div class="flex-grow-1 p-4">
+            <div class="container-fluid bg-white rounded-4 shadow-sm p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0"><i class="bi bi-calendar-event me-2 text-primary"></i>Quản lý Sự
+                        Kiện</h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="quetDuLieuAGU()" id="btnScan"><i
+                                class="bi bi-cloud-download me-2"></i>Quét dữ liệu AGU</button>
+                        <a href="/them" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Thêm Sự Kiện Mới</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên Sự Kiện</th>
+                                <th>Ngày Tổ Chức</th>
+                                <th>Địa Điểm</th>
+                                <th class="text-center">Đã Đăng Ký</th>
+                                <th class="text-end">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (events.length===0) { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">Chưa có dữ liệu sự kiện.</td>
+                                </tr>
+                                <% } else { %>
+                                    <% events.forEach(function(e) { %>
+                                        <tr>
+                                            <td>
+                                                <img src="<%- (e.hinhAnh && e.hinhAnh.trim() !== '') ? e.hinhAnh.trim() : 'https://ui-avatars.com/api/?name=AGU&background=0056b3&color=fff&size=100' %>"
+                                                    class="rounded"
+                                                    style="width: 50px; height: 50px; object-fit: cover;"
+                                                    onerror="this.src='https://ui-avatars.com/api/?name=Lỗi&background=ff4d4d&color=fff&size=100';">
+                                            </td>
+                                            <td class="fw-bold text-primary">
+                                                <%= e.tenSuKien %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(e.ngay).toLocaleDateString('vi-VN') %>
+                                            </td>
+                                            <td><small class="text-muted">
+                                                    <%= e.diaDiem %>
+                                                </small></td>
+                                            <td class="text-center">
+                                                <span class="badge bg-info text-dark rounded-pill px-3">
+                                                    <%= e.soLuongDaDangKy || 0 %> / <%= e.soLuongToiDa || 100 %>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="/sua/<%= e._id %>"
+                                                    class="btn btn-sm btn-outline-warning text-dark"><i
+                                                        class="bi bi-pencil-square"></i></a>
+                                                <form action="/xoa/<%= e._id %>" method="POST" class="d-inline">
+                                                    <button onclick="return confirm('Xóa sự kiện này?')"
+                                                        class="btn btn-sm btn-outline-danger"><i
+                                                            class="bi bi-trash"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal fade" id="scanModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Kết quả quét AGU</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="list-group" id="scanResultsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Logic quét AGU giữ nguyên để gọi API
+            let duLieuQuetTamThoi = [];
+            async function quetDuLieuAGU() {
+                const btnScan = document.getElementById('btnScan');
+                btnScan.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang xử lý...`; btnScan.disabled = true;
+                try {
+                    const response = await fetch('/api/quet-su-kien-agu'); const result = await response.json();
+                    if (result.success && result.data.length > 0) {
+                        duLieuQuetTamThoi = result.data; hienThiKetQua(result.data);
+                        new bootstrap.Modal(document.getElementById('scanModal')).show();
+                    } else alert("Không có sự kiện mới.");
+                } catch (error) { alert("Lỗi kết nối."); } finally { btnScan.innerHTML = `<i class="bi bi-cloud-download me-2"></i>Quét dữ liệu AGU`; btnScan.disabled = false; }
+            }
+            function hienThiKetQua(data) {
+                const list = document.getElementById('scanResultsList'); list.innerHTML = '';
+                data.forEach((item, index) => {
+                    list.innerHTML += `<div class="list-group-item"><div class="row align-items-center"><div class="col-md-7"><h6 class="mb-1">${item.tenSuKien}</h6></div><div class="col-md-5"><div class="input-group"><input type="datetime-local" class="form-control" id="dateScan-${index}" required><button class="btn btn-success" type="button" onclick="luuNhanhSuKien(${index})">Lưu</button></div></div></div></div>`;
+                });
+            }
+            function luuNhanhSuKien(index) {
+                const ngay = document.getElementById(`dateScan-${index}`).value;
+                if (!ngay) { alert('Vui lòng chọn ngày!'); return; }
+                const item = duLieuQuetTamThoi[index]; const form = document.createElement('form'); form.method = 'POST'; form.action = '/them';
+                const fields = { tenSuKien: item.tenSuKien, ngay: ngay, diaDiem: item.diaDiem, moTa: item.moTa, soLuongToiDa: 100 };
+                for (const key in fields) { const input = document.createElement('input'); input.type = 'hidden'; input.name = key; input.value = fields[key]; form.appendChild(input); }
+                document.body.appendChild(form); form.submit();
+            }
+        </script>
+</body>
+
+</html>

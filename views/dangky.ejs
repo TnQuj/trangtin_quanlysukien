@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - iEvent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .login-container {
+            min-height: 100vh;
+        }
+
+        /* CỘT TRÁI (BANNER) */
+        .login-sidebar {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.85), rgba(32, 201, 151, 0.85)), url('https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80') no-repeat center center;
+            background-size: cover;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+        }
+
+        .sidebar-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .login-sidebar h1 {
+            font-weight: 800;
+            font-size: 3.5rem;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .project-footer {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+        }
+
+        /* CỘT PHẢI (FORM) */
+        .login-form-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            background-color: #ffffff;
+        }
+
+        .login-form-wrapper {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .form-control-custom {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+            box-shadow: none !important;
+        }
+
+        .form-control-custom:focus {
+            background-color: #ffffff;
+            border-color: #28a745;
+        }
+
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control-custom {
+            border-color: #28a745;
+            background-color: #ffffff;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Nút bấm */
+        .btn-success-custom {
+            background-color: #28a745;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(40, 167, 69, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .login-sidebar {
+                display: none !important;
+            }
+
+            .login-form-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row g-0 login-container">
+
+        <div class="col-lg-5 login-sidebar d-none d-lg-flex">
+            <div></div>
+            <div class="sidebar-content">
+                <h1>⭐ iEvents</h1>
+                <p class="mt-3 fs-5" style="max-width: 450px;">Đăng ký tài khoản để tham gia các sự kiện hấp dẫn nhất
+                    tại Đại học An Giang.</p>
+            </div>
+
+            <div class="project-footer mt-auto bg-dark bg-opacity-25 p-3 rounded-4 backdrop-blur">
+                <p class="mb-1 fw-bold text-uppercase tracking-wider">Đồ án Điện toán Đám mây</p>
+                <p class="mb-0">© 2026 | Thực hiện bởi <strong>Phan Nhật Minh</strong> & <strong>Thái Ngọc Quí</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-lg-7 login-form-area">
+            <div class="login-form-wrapper">
+
+                <div class="mb-4 text-center text-lg-start">
+                    <h3 class="fw-bold text-dark mb-1">Tạo tài khoản mới</h3>
+                    <p class="text-muted small">Vui lòng điền đầy đủ thông tin bên dưới</p>
+                </div>
+
+                <% if (typeof error !=='undefined' && error) { %>
+                    <div class="alert alert-danger border-0 shadow-sm py-2" id="autoAlert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <%= error %>
+                    </div>
+                    <% } %>
+                        <% if (typeof success !=='undefined' && success) { %>
+                            <div class="alert alert-success border-0 shadow-sm py-2" id="autoAlert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                <%= success %>
+                            </div>
+                            <% } %>
+
+                                <form action="/dangky" method="POST">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-semibold text-secondary small">Họ và tên</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end-0 rounded-start-3"><i
+                                                        class="bi bi-person-badge text-muted"></i></span>
+                                                <input type="text" name="hoVaTen"
+                                                    class="form-control form-control-custom border-start-0 rounded-end-3 ps-0"
+                                                    placeholder="Nguyễn Văn A" required autofocus>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-semibold text-secondary small">Tên đăng
+                                                nhập</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end-0 rounded-start-3"><i
+                                                        class="bi bi-person text-muted"></i></span>
+                                                <input type="text" name="tenDangNhap"
+                                                    class="form-control form-control-custom border-start-0 rounded-end-3 ps-0"
+                                                    placeholder="Mã SV / Tên" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-secondary small">Email</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text border-end-0 rounded-start-3"><i
+                                                    class="bi bi-envelope text-muted"></i></span>
+                                            <input type="email" name="email"
+                                                class="form-control form-control-custom border-start-0 rounded-end-3 ps-0"
+                                                placeholder="email@example.com" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <label class="form-label fw-semibold text-secondary small">Mật khẩu</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end-0 rounded-start-3"><i
+                                                        class="bi bi-lock text-muted"></i></span>
+                                                <input type="password" name="matKhau"
+                                                    class="form-control form-control-custom border-start-0 rounded-end-3 ps-0"
+                                                    placeholder="••••••••" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-4">
+                                            <label class="form-label fw-semibold text-secondary small">Xác nhận mật
+                                                khẩu</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-end-0 rounded-start-3"><i
+                                                        class="bi bi-shield-lock text-muted"></i></span>
+                                                <input type="password" name="xacNhanMatKhau"
+                                                    class="form-control form-control-custom border-start-0 rounded-end-3 ps-0"
+                                                    placeholder="••••••••" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success-custom w-100 fs-6 mb-3">Đăng ký tài
+                                        khoản</button>
+                                </form>
+
+                                <div class="text-center pt-3 border-top">
+                                    <p class="text-muted small mb-0">Đã có tài khoản? <a href="/dangnhap"
+                                            class="text-decoration-none fw-bold ms-1" style="color: #28a745;">Đăng nhập
+                                            ngay</a></p>
+                                </div>
+
+                                <div class="d-block d-lg-none text-center mt-5 pt-3">
+                                    <p class="text-muted" style="font-size: 0.75rem;">
+                                        <strong>Đồ án Điện toán Đám mây</strong><br>
+                                        © 2026 | Phan Nhật Minh & Thái Ngọc Quí
+                                    </p>
+                                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('#autoAlert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+</body>
+
+</html>
